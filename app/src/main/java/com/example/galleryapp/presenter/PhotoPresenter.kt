@@ -1,31 +1,37 @@
 package com.example.galleryapp.presenter
 
 import com.example.galleryapp.api.Photo
-import com.example.galleryapp.api.PhotoDao
-import java.text.SimpleDateFormat
-import java.util.*
+import com.example.galleryapp.model.PhotoModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
-class PhotoPresenter(private val photoDao: PhotoDao) : PhotoContract.Presenter {
-
-    private var view: PhotoContract.View? = null
-
-    override fun attachView(view: PhotoContract.View) {
-        this.view = view
-    }
-
-    override fun detachView() {
-        view = null
-    }
+class PhotoPresenter(private val view: PhotoContract.View, private val model: PhotoModel) :
+    PhotoContract.Presenter {
 
     override fun loadPhotos() {
-        photoDao.getAllPhotos().observeForever { photos ->
-            view?.showPhotos(photos)
+        GlobalScope.launch(Dispatchers.Main) {
+            try {
+                val photos = model.getAllPhotos()
+                view.displayPhotos(photos)
+            } catch (e: Exception) {
+                view.displayError("Error loading photos.")
+            }
         }
     }
-
-    override fun capturePhoto(newPhoto: String) {
-        val dateCreated = SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault()).format(Date())
-        val photo = Photo(dateCreated = dateCreated, photoUrl = newPhoto)
-        photoDao.insertPhoto(photo)
+    override fun insertPhoto(photo: Photo) {
+        GlobalScope.launch(Dispatchers.IO) {
+            model.insertPhoto(photo)
+        }
+    }
+    override fun deleteAllPhotos() {
+        GlobalScope.launch(Dispatchers.Main) {
+            try {
+                model.deleteAllPhotos()
+                view.displayPhotos(emptyList())
+            } catch (e: Exception) {
+                view.displayError("Error deleting photos.")
+            }
+        }
     }
 }

@@ -26,7 +26,6 @@ class PhotoAdapter(private var photos: List<Photo>) : RecyclerView.Adapter<Photo
         val photo = photos[position]
 
         holder.txt_date.text = photo.dateCreated
-
         Glide.with(holder.imageView)
             .load(photo.photoUrl)
             .into(holder.imageView)

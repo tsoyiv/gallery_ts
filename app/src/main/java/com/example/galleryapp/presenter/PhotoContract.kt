@@ -4,13 +4,18 @@ import com.example.galleryapp.api.Photo
 
 interface PhotoContract {
     interface View {
-        fun showPhotos(photos: List<Photo>)
+        fun displayPhotos(photos: List<Photo>)
+        fun displayError(message: String)
     }
 
     interface Presenter {
-        fun attachView(view: View)
-        fun detachView()
         fun loadPhotos()
-        fun capturePhoto(newPhoto: String)
+        fun deleteAllPhotos()
+        fun insertPhoto(photo: Photo)
+    }
+
+    interface Model {
+        fun getAllPhotos(): List<Photo>
+        fun insertPhoto(photo: Photo)
     }
 }
